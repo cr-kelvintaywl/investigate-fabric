@@ -1,0 +1,43 @@
+version: '2.1'
+
+jobs:
+  investigate:
+    parameters:
+      paramiko_version:
+        type: string
+        default: '2.12.0'
+      fabric_version:
+        type: string
+        default: '3.2.2'
+    docker:
+      - image: cimg/python:3.9.21
+    steps:
+      - run: ssh -V
+      - run: pip install --upgrade pip
+      - run:
+          name: install Paramiko
+          command: |
+            pip install paramiko==<< parameters.paramiko_version >>
+      - run:
+          name: install Fabric
+          command: |
+            pip install fabric==<< parameters.fabric_version >>
+      - run: pip freeze
+      - run:
+          name: test
+          shell: '/usr/bin/env python'
+          command: |
+            from fabric.auth import *
+
+            print("done")
+
+workflows:
+  main:
+    jobs:
+      - investigate:
+          matrix:
+            parameters:
+              paramiko_version:
+                - '2.12.0'
+                - '3.1.0'
+                - '3.2.0'
